@@ -1,0 +1,12 @@
+loadrt mux_generic config=bb4
+# loadrt debounce cfg=1
+
+# addf debounce.0 servo-thread
+addf mux-gen.00     servo-thread
+
+net probe-is-ready     mux-gen.00.sel-bit-00       motion.digital-out-00
+
+net probe-in-tool   mux-gen.00.in-bit-00        hm2_7i76e.0.7i76.0.0.input-10-not
+net probe-in-touch  mux-gen.00.in-bit-01        hm2_7i76e.0.7i76.0.0.input-12-not
+
+net probe-in        mux-gen.00.out-bit           motion.probe-input

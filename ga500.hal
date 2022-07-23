@@ -1,0 +1,13 @@
+loadusr -W vfdmod ga500.ini
+
+#net spindle-speed spindle.0.speed-out => vfdmod.spindle.rpm-in
+net spindle-cw              vfdmod.control.run-forward          spindle.0.forward 
+net spindle-ccw             vfdmod.control.run-reverse          spindle.0.reverse
+net spindle-speed-in        vfdmod.spindle.rpm-in               spindle.0.speed-out-rps-abs#spindle.0.speed-out-abs
+net spindle-at-speed        vfdmod.spindle.at-speed             spindle.0.at-speed
+
+net qtpy-spindle-rpm        qtpyvcp.spindle-encoder-rpm.in      vfdmod.spindle.rpm-out
+net qtpy-spindle-current    qtpyvcp.spindle-load-indicator.in-f vfdmod.parameters.spindle-current
+
+setp qtpyvcp.spindle-load-indicator.min-val     0
+setp qtpyvcp.spindle-load-indicator.max-val     60
