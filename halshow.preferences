@@ -1,25 +1,27 @@
 # Halshow settings
 # This file is generated automatically.
-wm geometry . 707x653+779+20
+wm geometry . 707x653+942+49
 placeFrames 0.31510791366906477
 set ::ratio 0.31510791366906477
 set ::old_w_leftf 365
 set ::watchlist {
-    pin+hm2_7i76e.0.7i76.0.0.input-04
-    pin+hm2_7i76e.0.7i76.0.0.input-04-not
-    pin+hm2_7i76e.0.7i76.0.0.input-05
-    pin+hm2_7i76e.0.7i76.0.0.input-05-not
-    pin+hm2_7i76e.0.7i76.0.0.input-06
-    pin+hm2_7i76e.0.7i76.0.0.input-06-not
     pin+vfdmod.spindle.rpm-in
     pin+vfdmod.spindle.rpm-out
-    sig+probe-in
     sig+probe-in-raw
-    sig+spindle-enable
-    sig+spindle-at-speed-not
-    sig+touch-probe-in
-    sig+probe-or-touch-probe
     pin+motion.probe-input
+    pin+hm2_7i76e.0.7i76.0.0.input-07
+    pin+hm2_7i76e.0.7i76.0.0.input-07-not
+    sig+min-home-x
+    sig+min-home-y
+    sig+min-home-z
+    sig+probe-in-tool
+    sig+spindle-disabled
+    sig+spindle-enabled
+    pin+and2.0.in0
+    pin+and2.0.in1
+    pin+and2.0.out
+    sig+rack-motor-set
+    pin+halui.spindle.0.is-on
 }
 set ::workmode watchhal
 set ::watchInterval 100

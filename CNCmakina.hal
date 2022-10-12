@@ -34,7 +34,13 @@ net air-seal  =>          hm2_7i76e.0.7i76.0.0.output-02
 
 # --- WATER-PUMP ---
 net water-pump  =>        hm2_7i76e.0.7i76.0.0.output-03
-sets water-pump true
+#sets water-pump true
+
+# --- AIR COOLANT/MIST ---
+net air-cooling  =>          hm2_7i76e.0.7i76.0.0.output-04
+
+# --- RACK MOTOR SET---
+net rack-motor-set  =>          hm2_7i76e.0.7i76.0.0.output-05
 
 # --- SPINDLE-SENSOR-11 ---
 net spindle-sensor-11  <=        hm2_7i76e.0.7i76.0.0.input-08
@@ -46,7 +52,7 @@ net spindle-sensor-22  <=        hm2_7i76e.0.7i76.0.0.input-09
 net estop-loopout iocontrol.0.emc-enable-in <= estop-latch.0.ok-out
 net estop-loopin iocontrol.0.user-enable-out <= estop-latch.0.ok-in
 net estop-reset iocontrol.0.user-request-enable <= estop-latch.0.reset
-net remote-estop estop-latch.0.fault-in <= hm2_7i76e.0.7i76.0.0.input-11-not
+net remote-estop estop-latch.0.fault-in <= hm2_7i76e.0.7i76.0.0.input-15
 
 
 # --- MIN-X ---
@@ -139,7 +145,7 @@ net spindle-vel-cmd-rps        <=  spindle.0.speed-out-rps
 # net spindle-vel-cmd-rps-abs    <=  spindle.0.speed-out-rps-abs
 # net spindle-vel-cmd-rpm        <=  spindle.0.speed-out
 # net spindle-vel-cmd-rpm-abs    <=  spindle.0.speed-out-abs
-net spindle-enable             <=  spindle.0.on
+net spindle-enabled             <=  spindle.0.on
 net spindle-cw                 <=  spindle.0.forward
 net spindle-ccw                <=  spindle.0.reverse
 net spindle-brake              <=  spindle.0.brake

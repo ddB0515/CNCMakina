@@ -3,28 +3,23 @@ loadrt and2 count=1
 loadrt not count=1
 loadrt debounce cfg=1
 
-addf or2.0          servo-thread
+addf debounce.0     servo-thread
 addf and2.0         servo-thread
 addf not.0          servo-thread
 
 # --- TOOL SETTER ---
-net probe-in-raw <= hm2_7i76e.0.7i76.0.0.input-10-not
-setp debounce.0.delay 20
+net probe-in-raw <= hm2_7i76e.0.7i76.0.0.input-07
+setp debounce.0.delay 1
 net probe-in-raw => debounce.0.0.in
 net probe-in-tool debounce.0.0.out
 
+# NOT
+net spindle-enabled  => not.0.in
+net spindle-disabled <= not.0.out 
+
 # AND
-net spindle-enable => not.0.in
-net spindle-at-speed-not <= not.0.out 
 net probe-in-tool => and2.0.in0
-net spindle-at-speed-not => and2.0.in1
-net probe-in and2.0.out
-
-# --- TOUCH PROBE ---
-net touch-probe-in <= hm2_7i76e.0.7i76.0.0.input-12-not
-
+net spindle-disabled => and2.0.in1
 
 # --- LINK ALL TOGETHER ---
-net probe-in => or2.0.in0
-net touch-probe-in => or2.0.in1
-net probe-or-touch-probe <= or2.0.out => motion.probe-input
+net probe-or-touch-probe <= and2.0.out => motion.probe-input
