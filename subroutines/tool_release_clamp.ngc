@@ -1,0 +1,21 @@
+o<tool_release_clamp> sub
+(print, Start of Program)
+
+; turn ON AIR-MAIN
+M64 P5
+;wait sec
+G4 P1
+; turn OFF AIR-MAIN
+M65 P5
+; wait for 2sec
+G4 P2
+; turn ON AIR-RETURN
+M64 P4
+; wait a sec
+G4 P1
+; turn OFF AIR_SEAL
+M65 P4
+
+(print, End of Program)
+o<tool_release_clamp> endsub
+M2

@@ -24,29 +24,29 @@ setp    hm2_7i76e.0.stepgen.timer-number 1
 
 
 # --- AIR-MAIN ---
-net air-main  =>          hm2_7i76e.0.7i76.0.0.output-00
+net air-main  motion.digital-out-05         =>  hm2_7i76e.0.7i76.0.0.output-00
 
 # --- AIR-RETURN ---
-net air-return  =>        hm2_7i76e.0.7i76.0.0.output-01
+net air-return  motion.digital-out-04       =>  hm2_7i76e.0.7i76.0.0.output-01
 
 # --- AIR_SEAL ---
-net air-seal  =>          hm2_7i76e.0.7i76.0.0.output-02
+net air-seal  motion.digital-out-03         =>  hm2_7i76e.0.7i76.0.0.output-02
 
 # --- WATER-PUMP ---
-net water-pump  =>        hm2_7i76e.0.7i76.0.0.output-03
+net water-pump  motion.digital-out-02       =>  hm2_7i76e.0.7i76.0.0.output-03
 #sets water-pump true
 
 # --- AIR COOLANT/MIST ---
-net air-cooling  =>          hm2_7i76e.0.7i76.0.0.output-04
+net air-cooling  motion.digital-out-01      =>  hm2_7i76e.0.7i76.0.0.output-04
 
 # --- RACK MOTOR SET---
-net rack-motor-set  =>          hm2_7i76e.0.7i76.0.0.output-05
+net rack-motor-set  motion.digital-out-00   =>  hm2_7i76e.0.7i76.0.0.output-05
 
 # --- SPINDLE-SENSOR-11 ---
-net spindle-sensor-11  <=        hm2_7i76e.0.7i76.0.0.input-08
+net spindle-sensor-11  motion.digital-in-00 <=  hm2_7i76e.0.7i76.0.0.input-08
 
 # --- SPINDLE-SENSOR-22 ---
-net spindle-sensor-22  <=        hm2_7i76e.0.7i76.0.0.input-09
+net spindle-sensor-22  motion.digital-in-01 <=  hm2_7i76e.0.7i76.0.0.input-09
 
 # external input signals
 net estop-loopout iocontrol.0.emc-enable-in <= estop-latch.0.ok-out
@@ -101,6 +101,7 @@ setp   hm2_7i76e.0.stepgen.01.step_type        0
 setp   hm2_7i76e.0.stepgen.01.control-type     0
 setp   hm2_7i76e.0.stepgen.01.maxaccel         [JOINT_1]STEPGEN_MAXACCEL
 setp   hm2_7i76e.0.stepgen.01.maxvel           [JOINT_1]STEPGEN_MAXVEL
+
 # ---motor signals---
 net y-pos-cmd    hm2_7i76e.0.stepgen.01.position-cmd <= joint.1.motor-pos-cmd
 net y-pos-fb     hm2_7i76e.0.stepgen.01.position-fb => joint.1.motor-pos-fb
@@ -210,3 +211,6 @@ net machine-is-enabled        <=  motion.motion-enabled
 #net estop-out     <=  iocontrol.0.user-enable-out
 #net estop-out     =>  iocontrol.0.emc-enable-in
 
+## --- TOOLCHANGER LOOP --- #
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed

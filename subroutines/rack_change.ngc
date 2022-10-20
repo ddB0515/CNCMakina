@@ -1,0 +1,177 @@
+o<rack_change> sub
+(print, Start of Program)
+
+;(auto-restore modal settings on return)
+M73 
+
+(print, Storing tool and pocket information in local variables)
+#<newtool> = #<selected_tool>
+#<newpocket> = #<selected_pocket>
+#<oldtool> = #<tool_in_spindle>
+#<oldpocket> = #<current_pocket>
+
+
+(print, oldtool=#<oldtool> oldpocket=#<oldpocket>)
+(print, newtool=#<newtool> newpocket=#<newpocket>)
+
+; we must execute this macro only in the milltask interpreter or preview will break, so test for '#<_task>' which is 1 for  the milltask interpreter and 0 in the UI's
+o150 if [#<_task> EQ 0]
+        (print, Task is null ABORTING)
+o150     return [999]
+o150 endif
+
+; Ensure everything that we do is done in absolute coordinates
+G90
+; Cutter comp off, otherwise G53 might go wrong
+G40
+; Cancel tool offset (not needed until the end)
+G49
+
+; First things first, rapid to safe Z
+G53 G0 Z[#<_ini[AXIS_Z]MAX_LIMIT>-0.1]
+(print, Moved safe Z)
+
+; First, get rid of the old tool
+; check if the spindle is not empty by checking if tool_in_spindle/oldtool GT 0
+o200 if [#<oldtool> EQ #<newtool>]
+    ; This is a special case in which no tool needs to be dropped off. This assumes that the user has the tool table under control. further down, during pick up of newtool a message will be brought forward to GUI
+    (print, old tool = new tool NO-OP)
+o200 elseif [#<oldtool> GT 0]
+    (print, Tool No  #<oldtool> is in the spindle - we need to put it away)
+    ; Check if oldpocket is within range
+    o210 if [#<oldpocket> GT 0]
+        o220 if [#<oldpocket> LE #<_ini[ATC]NUMPOCKETS>]
+            ;Tool within range, triggering put move to rack, assuming that the pocket is empty!
+             (print, Putting tool away into rack in pocket #<oldpocket>)
+            ; We are already at safe Z; now rapid to pre position for a specific pocket
+            G53 G0 X[#<_ini[ATC]FIRSTPOCKET_X>] Y[#<_ini[ATC]FIRSTPOCKET_Y> + [#<oldpocket> -1] * #<_ini[ATC]DELTA_Y>]
+            ; open rack
+            M64 P#<_ini[ATC_PINS]RACK_OPEN>
+            ; wait rack to open
+            G4 P5.0
+            ; Now put the tool down gently
+            G53 G01 Z[#<_ini[ATC]FIRSTPOCKET_Z>] F#<_ini[ATC]DROPSPEEDZ>
+            ; Here you need to RELEASE tool
+            G4 P1
+            ; Release or clamp tool subroutine
+            ; turn ON AIR-MAIN
+            M64 P5
+            ; Move back to safe Z above the oldpocket
+            G53 G01 Z #<_ini[ATC]OFF_HEIGHT_Z> F#<_ini[ATC]DROPSPEEDZ>
+            ; turn OFF AIR-MAIN
+            M65 P5
+            ; wait for 2sec
+            G4 P2
+            ; turn ON AIR-RETURN
+            M64 P4
+            ; wait a sec
+            G4 P1
+            ; turn OFF AIR_SEAL
+            M65 P4
+            ; Move to safe Z
+            G53 G0 Z[#<_ini[AXIS_Z]MAX_LIMIT>-0.1]
+            G4 P0.2
+        o220 else
+            ; Tool is still at safe Z height from before
+            (print, Pocket is not within range, moving to manual change positon)
+            G53 G0 X #<_ini[ATC]CHANGEX> Y #<_ini[ATC]CHANGEY>
+            G53 G0 Z #<_ini[ATC]CHANGEZ>
+            ;(MSG, Please remove tool manually from spindle using release button. Afterwards press OK)
+            ; Abuse M6 for a dialog with the user by briefly killing the requested tool and replacing it with T0
+            T0
+            M6
+            T#<newtool>
+            G4 P0.2
+            ; Check if the tool is really gone (LOW)
+
+            (print, Finished  manual drop off) 
+
+        o220 endif
+    (print,  We are now without a tool at some position either safely above pocket or the manual change position)
+
+    o210 endif
+o200 else
+    ; There is nothing to do here but end the conditional
+    (print, There is no tool in the spindle - No action required at this time)
+o200 endif
+
+; Second Step, get new tool
+; Check if the new tool number is EQ 0
+o300 if [#<oldtool> EQ #<newtool>]
+    ; This is to check if the requested tool is already in the spindle. If so, all other steps are skipped an a message is displayed to the user using DEBUG
+    (DEBUG, Attention - No tool change required. Not doing anything, check if tool offset remains valid)
+    M2
+o300 elseif [#<newtool> GT 0]
+    (print, New tool: #<newtool> needs to be picked up)
+    ; Again, check if #newpocket is within range of the tool rack, otherwise pick at manual change position and measure
+    o310 if [#<newpocket> GT 0]
+        o320 if [#<newpocket> LE #<_ini[ATC]NUMPOCKETS>]
+            ; Tool within rack range, triggering get tool from rack, assuming that the pocket is filled
+            (print, Getting tool #<newtool> from rack at pocket #<newpocket>)
+            ; Assuming that the pockets are populated; rapid  move above selected_pocket at z0
+            (print, Moving to safe preposition at z0)
+            ; We are already at safe Z; now rapid to pre position for a specific pocket
+            G53 G0 X[#<_ini[ATC]FIRSTPOCKET_X>] Y[#<_ini[ATC]FIRSTPOCKET_Y> + [#<newpocket> -1] * #<_ini[ATC]DELTA_Y>]
+            ; Check if Rack is opened
+            M66 P #<_ini[ATC_PINS]RACK_OPEN> L0
+            (print, Rack status: #5399)
+            O330 IF [#5399 NE 1]
+                M64 P#<_ini[ATC_PINS]RACK_OPEN>
+                G4 P5.0
+            O330 ENDIF 
+            ; Now put the tool down gently
+            G53 G01 Z #<_ini[ATC]OFF_HEIGHT_Z> F#<_ini[ATC]DROPSPEEDZ>
+            ; Here you need to RELEASE tool
+            G4 P1
+            ; Release or clamp tool subroutine
+            ; turn ON AIR-MAIN
+            M64 P5
+            ; wait a sec
+            ;G4 P1
+            G53 G01 Z[#<_ini[ATC]FIRSTPOCKET_Z>] F#<_ini[ATC]DROPSPEEDZ>
+            ; turn OFF AIR-MAIN
+            M65 P5
+            ; wait for 3sec
+            G4 P3
+            ; turn ON AIR-RETURN
+            M64 P4
+            ; wait a sec
+            G4 P1
+            ; turn OFF AIR_SEAL
+            M65 P4
+            ; Move back to safe Z above the newpocket
+            G53 G01 Z #<_ini[ATC]OFF_HEIGHT_Z> F#<_ini[ATC]DROPSPEEDZ>
+            ; Move to safe Z
+            G53 G0 Z[#<_ini[AXIS_Z]MAX_LIMIT>-0.1]
+            M65 P#<_ini[ATC_PINS]RACK_OPEN>
+            ; Load tool number
+            (print, Moving finished, tool loaded, now tell linucnc about the toolchange using M61)
+            M61 Q#<newtool>
+            (print, Tool loaded from rack, ready to measure)
+            G4 P0.2
+        o320 else
+            (print, Selected pocket is not within range, moving to manual pick up)
+            ; rapid move to manual pick up position
+            G53 G0 Z[#<_ini[AXIS_Z]MAX_LIMIT>-0.1]
+            G53 G0 X[#<_ini[ATC]CHANGEX>] Y[#<_ini[ATC]CHANGEY>]
+            G53 G0 Z[#<_ini[ATC]CHANGEZ>]
+            ; using the code being remapped here means 'use builtin behaviour' and should trigger the usual message
+            (print, Now trigger M6 to tell the user which tool to pick)
+            M6
+            (print, A tool is manually loaded and we can continue with measurement)
+        o320 endif
+
+        ; Perform tool measurement - first rapid to toolsensorposition
+
+        G53 G0 X[#<_ini[TOOLSENSOR]X>] Y[#<_ini[TOOLSENSOR]Y> - #<_ini[ATC]SAFE_Y>]
+        G53 G0 Z[#<_ini[TOOLSENSOR]Z>]
+
+        (print, tool measurement)
+        o<tool_touch_off> call [300.0] [100.0] [90.0] [100.0] [116.88] [0.5] [0.0000] [0.0] [0.0] [#5410]
+    o310 endif
+o300 endif
+
+(print, End of Program)
+o<rack_change> endsub [1]
+M2
+%

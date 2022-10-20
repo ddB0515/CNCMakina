@@ -1,6 +1,6 @@
 # Halshow settings
 # This file is generated automatically.
-wm geometry . 707x653+942+49
+wm geometry . 707x653+781+108
 placeFrames 0.31510791366906477
 set ::ratio 0.31510791366906477
 set ::old_w_leftf 365
@@ -22,6 +22,10 @@ set ::watchlist {
     pin+and2.0.out
     sig+rack-motor-set
     pin+halui.spindle.0.is-on
+    sig+spindle-sensor-11
+    sig+spindle-sensor-22
+    pin+whb.button.macro-9
+    pin+whb.button.macro-14
 }
 set ::workmode watchhal
 set ::watchInterval 100

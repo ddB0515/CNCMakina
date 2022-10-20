@@ -1,4 +1,4 @@
 # These files are loaded post GUI, in the order they appear
-#source time.hal
+source time.hal
 source ga500.hal
-source manual-toolchanger.hal
+#source manual-toolchanger.hal

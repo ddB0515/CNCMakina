@@ -1,5 +1,5 @@
 loadrt time
-loadrt not
+#loadrt not ;already loaded
 
 addf time.0 servo-thread
 addf not.0 servo-thread

@@ -21,7 +21,7 @@ G92.1    (Cancel G92 offset)
 #<tool_radius_offset> = [#<tool_diameter> / 2]
 #<offset_probing_position> = [#<tool_touch_x_coords> - #<tool_radius_offset>]
 
-G59.3
+G54 (Needs to use G54 as this is my WCS)
 
 o<100> if [#<tool_diameter_offset_mode> EQ 1]
   #<tool_touch_x_coords> = #<offset_probing_position>
